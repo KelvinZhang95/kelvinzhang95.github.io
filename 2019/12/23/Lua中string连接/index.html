@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Lua中的string连接Lua中常用的字符串连接有三种：1 直接用.. 2 table.concat() 3 string.format()，但是三者性能表现有很大差距，而且有些情况下还会因为使用方法不当产生巨大的内存开销，有必要研究一下其中的原理。 ..连接符不少有关于Lua性能分析的文章中都会谈到..连接符，每次都要把..批判一番，它似乎一无是处。但在这里我要为..小小辩护一下： 这些文章中">
+<meta name="keywords" content="Lua">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lua中的string连接">
+<meta property="og:url" content="kelvinzhang.xyz/2019/12/23/Lua中string连接/index.html">
+<meta property="og:site_name" content="Kelvin&#39;s Blog">
+<meta property="og:description" content="Lua中的string连接Lua中常用的字符串连接有三种：1 直接用.. 2 table.concat() 3 string.format()，但是三者性能表现有很大差距，而且有些情况下还会因为使用方法不当产生巨大的内存开销，有必要研究一下其中的原理。 ..连接符不少有关于Lua性能分析的文章中都会谈到..连接符，每次都要把..批判一番，它似乎一无是处。但在这里我要为..小小辩护一下： 这些文章中">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-23T04:47:12.608Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Lua中的string连接">
+<meta name="twitter:description" content="Lua中的string连接Lua中常用的字符串连接有三种：1 直接用.. 2 table.concat() 3 string.format()，但是三者性能表现有很大差距，而且有些情况下还会因为使用方法不当产生巨大的内存开销，有必要研究一下其中的原理。 ..连接符不少有关于Lua性能分析的文章中都会谈到..连接符，每次都要把..批判一番，它似乎一无是处。但在这里我要为..小小辩护一下： 这些文章中">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="kelvinzhang.xyz/2019/12/23/Lua中string连接/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Lua中的string连接 | Kelvin's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Kelvin's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">张凯的技术博客</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="kelvinzhang.xyz/2019/12/23/Lua中string连接/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Kelvnzhang 张凯">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Kelvin's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Lua中的string连接
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-12-23 22:09:02 / 修改时间：12:47:12" itemprop="dateCreated datePublished" datetime="2019-12-23T22:09:02+08:00">2019-12-23</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术文章/" itemprop="url" rel="index"><span itemprop="name">技术文章</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Lua中的string连接"><a href="#Lua中的string连接" class="headerlink" title="Lua中的string连接"></a>Lua中的string连接</h1><p>Lua中常用的字符串连接有三种：1 直接用<code>..</code> 2 <code>table.concat()</code> 3 <code>string.format()</code>，但是三者性能表现有很大差距，而且有些情况下还会因为使用方法不当产生巨大的内存开销，有必要研究一下其中的原理。</p>
+<h3 id="连接符"><a href="#连接符" class="headerlink" title="..连接符"></a>..连接符</h3><p>不少有关于Lua性能分析的文章中都会谈到<code>..</code>连接符，每次都要把<code>..</code>批判一番，它似乎一无是处。但在这里我要为<code>..</code>小小辩护一下：</p>
+<p>这些文章中往往举出的例子是《Programming in Lua》中的这一段：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> buff = <span class="string">""</span></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> <span class="built_in">io</span>.<span class="built_in">lines</span>() <span class="keyword">do</span></span><br><span class="line">       buff = buff .. line .. <span class="string">"\n"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment">--这段代码读取一个350kb大小文件的时候需要约1分钟，同时会移动(开辟后又被回收)50GB内存。</span></span><br></pre></td></tr></table></figure>
+
+<p>想要解释这个问题，必须先了解一下Lua的string机制：当我们创建一个字符串的时候，Lua首先会检查内部是否已经有相同的字符串了，如果有就会直接返回其引用，没有的话才会真正创建。</p>
+<p>这样在<code>buff = buff .. line .. &quot;\n&quot;</code>字符串拼接的时候，Lua先要查找是否有相同的字符串，然后会把后者整个拷贝然后拼接，创建一块新的内存，buff指向这块内存缓存下来。每一次查找都是一次hash，每一次新字符串的创建都涉及到内存的分配，所以这一段代码无论在时间性能还是空间角度都是非常浪费的。</p>
+<p>但是问题的根源是Lua特殊的string机制，并不是<code>..</code>操作符本身；Lua的机制决定了<strong>在for循环中去连接字符串并把中间结果保存下来</strong>是非常危险的，无论是用的<code>..</code>还是string.format()。而想要解决这个问题，可以在循环中把新增的字符串缓存到table中，最后在循环外table.concat()。</p>
+<p>事实上，<code>..</code>这个运算符（而不是函数）的实现是非常高效的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">local str = &quot;a&quot; .. &quot;b&quot; .. &quot;c&quot; .. &quot;d&quot; .. &quot;e&quot; .. &quot;f&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>这样一段代码，很多人认为”a” .. “b” .. “c”需要先执行tmp = “a” .. “b”，再执行tmp = tmp .. “c”的操作，这样的操作如果进行很多次的话，其时间复杂度就会平方增长，然而如果我们使用<code>luac -l text.lua</code>指令查看生成的opcode：</p>
+<pre><code>1       [1]     LOADK           0 -1    ; &quot;a&quot;
+2       [1]     LOADK           1 -2    ; &quot;b&quot;
+3       [1]     LOADK           2 -3    ; &quot;c&quot;
+4       [1]     LOADK           3 -4    ; &quot;d&quot;
+5       [1]     LOADK           4 -5    ; &quot;e&quot;
+6       [1]     LOADK           5 -6    ; &quot;f&quot;
+7       [1]     CONCAT          0 0 5
+8       [1]     RETURN          0 1</code></pre><p>会发现<code>..</code>的仅仅是一个操作符，在Lua的内部实现中它会一次性把要连接的字符串全部找出来然后memcpy到新字符串上，无论<code>..</code>连接了多少个字符串，CONCAT都只会执行一次，<code>..</code>不会保存中间结果，并没有多余的内存申请和hash查找。</p>
+<h3 id="table-concat-）"><a href="#table-concat-）" class="headerlink" title="table.concat(）"></a>table.concat(）</h3><p>concat内部实现函数是tconcat，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">static** **int** tconcat (lua_State *L) &#123;</span><br><span class="line">  luaL_Buffer b;</span><br><span class="line">  lua_Integer last = aux_getn(L, 1, TAB_R);</span><br><span class="line">  **size_t** lsep;</span><br><span class="line">  **const** **char** *sep = luaL_optlstring(L, 2, &quot;&quot;, &amp;lsep);</span><br><span class="line">  lua_Integer i = luaL_optinteger(L, 3, 1);</span><br><span class="line">  last = luaL_optinteger(L, 4, last);</span><br><span class="line">  // 申请一块buff，存合并后的数据，初始buff大小为8192</span><br><span class="line">  // 当buff大小用完后就直接用luaV_concat在栈上做字符串连接</span><br><span class="line">  luaL_buffinit(L, &amp;b);</span><br><span class="line">  // 把table里面索引从i到last的值取出来，并放到buff里面，buff大小为BUFSIZ(8192)</span><br><span class="line">  // 每当写满一个buff，就把buff生成一个TString，并放到栈上，并把buff清空重新写</span><br><span class="line">  for (; i &lt; last; i++) &#123;</span><br><span class="line">     addfield(L, &amp;b, i);</span><br><span class="line">     luaL_addlstring(&amp;b, sep, lsep);</span><br><span class="line">  &#125;</span><br><span class="line">  // 把最后一个元素放入buff</span><br><span class="line">  // 把buff生成一个TString，并放到栈上</span><br><span class="line">  if (i == last)  */\* add last value (if interval was not empty) \*/*</span><br><span class="line">     addfield(L, &amp;b, i);</span><br><span class="line">  // 把栈上之前所有生成的TString通过luaV_concat（实际就是..）合并成一个TString，作为返回值</span><br><span class="line">  luaL_pushresult(&amp;b);</span><br><span class="line">  return 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从源码上看，table.concat没有频繁申请内存，只有当写满一个8192的BUFF时，才会生成一个TString，最后生成多个TString时，会有一次内存申请并合并。在大规模字符串合并时，应尽量选择这种方式。</p>
+<h3 id="string-format"><a href="#string-format" class="headerlink" title="string.format()"></a>string.format()</h3><p>string.format本身是一个函数调用，会根据%将字符串分割成多个部分，然后进行格式字符串的扫描和复制，然后拼接出最终结果存储在buffer上。比起<code>..</code>额外的开销主要来源于格式字符串的扫描和复制。</p>
+<h3 id="结论："><a href="#结论：" class="headerlink" title="结论："></a>结论：</h3><p>对比以上三种拼接方式的原理可知：</p>
+<p>1 大多数情况下，使用<code>..</code>即是最优。单单<code>..</code>的操作不会产生多余的临时string；</p>
+<p>2 当需要反复拼接的时候，<code>table.concat</code>效率更高。尤其是在类似于for循环中，<code>..</code>会产生内存的分配或者拷贝，中间会产生很多的临时string，增加额外的gc压力，而<code>table.concat</code>可以利用<code>luaL_Buffer</code>大幅减少拼接的次数，避免产生更多的临时string。</p>
+<p>3 string.format只适合于处理较为复杂的带格式的字符串，代码运行效率上没什么优势。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Lua/" rel="tag"># Lua</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/Lua代码性能优化/" rel="next" title>
+                <i class="fa fa-chevron-left"></i> 
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="Kelvnzhang 张凯">
+            
+              <p class="site-author-name" itemprop="name">Kelvnzhang 张凯</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Lua中的string连接"><span class="nav-number">1.</span> <span class="nav-text">Lua中的string连接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#连接符"><span class="nav-number">1.0.1.</span> <span class="nav-text">..连接符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#table-concat-）"><span class="nav-number">1.0.2.</span> <span class="nav-text">table.concat(）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#string-format"><span class="nav-number">1.0.3.</span> <span class="nav-text">string.format()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结论："><span class="nav-number">1.0.4.</span> <span class="nav-text">结论：</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kelvnzhang 张凯</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/schemes/muse.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

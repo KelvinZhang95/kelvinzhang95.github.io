@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="新手引导的一些设计总结–程序角度前言新手引导系统是每个游戏都不可或缺的，但是此系统又处于一个很尴尬的位置：  涉及到游戏内的很多系统，需要和各个模块交互，不小心设计的话会导致不必要的耦合 很多模块需要有一些特殊表现，容易造成代码污染 策划侧往往会比较频繁地改动来调整效果，需要可以灵活配置  所以整个新手引导系统的设计既要做到能满足复杂的功能需求，又要能够保持原有模块的设计整洁，还要兼顾策划同学的配">
+<meta name="keywords" content="程序设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="游戏中新手引导的一些设计总结--程序角度">
+<meta property="og:url" content="kelvinzhang.xyz/2019/09/15/游戏中新手引导的一些设计总结--程序角度/index.html">
+<meta property="og:site_name" content="Kelvin&#39;s Blog">
+<meta property="og:description" content="新手引导的一些设计总结–程序角度前言新手引导系统是每个游戏都不可或缺的，但是此系统又处于一个很尴尬的位置：  涉及到游戏内的很多系统，需要和各个模块交互，不小心设计的话会导致不必要的耦合 很多模块需要有一些特殊表现，容易造成代码污染 策划侧往往会比较频繁地改动来调整效果，需要可以灵活配置  所以整个新手引导系统的设计既要做到能满足复杂的功能需求，又要能够保持原有模块的设计整洁，还要兼顾策划同学的配">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="kelvinzhang.xyz/2019/09/15/游戏中新手引导的一些设计总结--程序角度/1552551854809.png">
+<meta property="og:image" content="kelvinzhang.xyz/2019/09/15/游戏中新手引导的一些设计总结--程序角度/1553066474463.png">
+<meta property="og:image" content="kelvinzhang.xyz/2019/09/15/游戏中新手引导的一些设计总结--程序角度/1553066458400.png">
+<meta property="og:image" content="kelvinzhang.xyz/2019/09/15/游戏中新手引导的一些设计总结--程序角度/1553066945267.png">
+<meta property="og:image" content="kelvinzhang.xyz/2019/09/15/游戏中新手引导的一些设计总结--程序角度/1553072165895.png">
+<meta property="og:image" content="kelvinzhang.xyz/2019/09/15/游戏中新手引导的一些设计总结--程序角度/1553138200137.png">
+<meta property="og:updated_time" content="2019-12-23T08:50:33.175Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="游戏中新手引导的一些设计总结--程序角度">
+<meta name="twitter:description" content="新手引导的一些设计总结–程序角度前言新手引导系统是每个游戏都不可或缺的，但是此系统又处于一个很尴尬的位置：  涉及到游戏内的很多系统，需要和各个模块交互，不小心设计的话会导致不必要的耦合 很多模块需要有一些特殊表现，容易造成代码污染 策划侧往往会比较频繁地改动来调整效果，需要可以灵活配置  所以整个新手引导系统的设计既要做到能满足复杂的功能需求，又要能够保持原有模块的设计整洁，还要兼顾策划同学的配">
+<meta name="twitter:image" content="kelvinzhang.xyz/2019/09/15/游戏中新手引导的一些设计总结--程序角度/1552551854809.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="kelvinzhang.xyz/2019/09/15/游戏中新手引导的一些设计总结--程序角度/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>游戏中新手引导的一些设计总结--程序角度 | Kelvin's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Kelvin's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">张凯的技术博客</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="kelvinzhang.xyz/2019/09/15/游戏中新手引导的一些设计总结--程序角度/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Kelvnzhang 张凯">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Kelvin's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">游戏中新手引导的一些设计总结--程序角度
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-09-15 10:00:00" itemprop="dateCreated datePublished" datetime="2019-09-15T10:00:00+08:00">2019-09-15</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-12-23 16:50:33" itemprop="dateModified" datetime="2019-12-23T16:50:33+08:00">2019-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术文章/" itemprop="url" rel="index"><span itemprop="name">技术文章</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="新手引导的一些设计总结–程序角度"><a href="#新手引导的一些设计总结–程序角度" class="headerlink" title="新手引导的一些设计总结–程序角度"></a>新手引导的一些设计总结–程序角度</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>新手引导系统是每个游戏都不可或缺的，但是此系统又处于一个很尴尬的位置：</p>
+<ul>
+<li>涉及到游戏内的很多系统，需要和各个模块交互，不小心设计的话会导致不必要的耦合</li>
+<li>很多模块需要有一些特殊表现，容易造成代码污染</li>
+<li>策划侧往往会比较频繁地改动来调整效果，需要可以灵活配置</li>
+</ul>
+<p>所以整个新手引导系统的设计既要做到能满足复杂的功能需求，又要能够保持原有模块的设计整洁，还要兼顾策划同学的配置自由度，我们在实现之初定下了“灵活、无副作用”的设计目标。</p>
+<p>整个系统由fourthchen架构设计，本人负责了具体细节实现，主要以学习为主。管中窥豹之余，写下这篇文章，希望能够记录下自己对此系统设计的学习和收获。</p>
+<h2 id="设计思想"><a href="#设计思想" class="headerlink" title="设计思想"></a>设计思想</h2><p>在此系统中，一个完整的引导被这样定义：</p>
+<p>​    <strong>引导 = 引导开启条件（conditions） + 引导行为（actions）</strong></p>
+<ul>
+<li>开启条件（conditions）是触发引导的必要条件，有可能有多个，需要同时满足；</li>
+</ul>
+<ul>
+<li>引导行为（actions）是引导具体的表现，也可能有多个。多个行为之间相当于同时触发，<strong>所以一个引导下的多个行为之间不能插入玩家输入</strong>。</li>
+</ul>
+<p>拿一个游戏中常见的引导举例，如图：当玩家升到2级之后，引导玩家建设自动炮塔（强制点击某个按钮）。</p>
+<p><img src="1552551854809.png" alt="1552551854809"></p>
+<p>此引导的开启条件就是<strong>“玩家的等级大于等于2级”</strong>，引导开启的行为就是<strong>1 “图片指示指向解锁按钮”</strong> + <strong>2 “黑色背景遮罩其他区域，且屏蔽触摸响应事件”</strong> + <strong>3“显示文字提示”</strong> + <strong>4“游戏暂停”</strong>，当这四个个表现触发完成后，此段引导实际上已经结束。至于玩家是否点击，此次引导中则不关心（大多数情况下玩家点击这个按钮，被设计成了下个引导开启的条件）。</p>
+<p>所以整个新手引导系统的核心流程就是：<strong>将复杂的新手引导逐步拆解，对每一段小引导，用特定的开启条件（conditions）和行为（actions）来组装，同时多段小引导之前前后拼接，来实现复杂的表现。</strong>而且开启条件（conditions）和行为（actions）是可以多次复用的，减少代码重复和风险。</p>
+<p>下面举例一些通用的开启条件（conditions）和行为（actions）定义：</p>
+<h5 id="开启条件（conditions）"><a href="#开启条件（conditions）" class="headerlink" title="开启条件（conditions）"></a>开启条件（conditions）</h5><ol>
+<li><strong>人物等级</strong>        –  大于等于xx级别</li>
+<li><strong>完成前置引导</strong>         –  保证引导的先后顺序</li>
+<li><strong>已有xx物品</strong>        –  数量满足指定个数</li>
+<li><strong>事件条件</strong>        –  完成特定行为</li>
+<li><strong>第一次进入xx系统</strong>        – 只针对新手</li>
+</ol>
+<h5 id="行为（actions）"><a href="#行为（actions）" class="headerlink" title="行为（actions）"></a>行为（actions）</h5><ol>
+<li><strong>UI引导</strong>        –  指引玩家点击某个按钮</li>
+<li><strong>弹出文字图片提示</strong>        –  介绍引导详情</li>
+<li><strong>在场景中指示位置或者路径</strong>        –  指引玩家</li>
+</ol>
+<p>其中条件4可以详细说一下：游戏中有些行为条件使用频率不高，比如完成某次建造、完成某次放置、完成某次击杀，此时就没必要再抽象出一种特定条件来增加复杂度了。可以使用事件条件，事件ID作为此条件的参数，完成某个行为后发出此ID的事件，同样能够满足条件，这也是一种取舍上的设计。</p>
+<p>不同游戏和场景情况不尽相同，按照这个原则，可以自定义出各种可以复用的条件（conditions）和行为（actions），满足复杂的需求。</p>
+<h2 id="程序设计"><a href="#程序设计" class="headerlink" title="程序设计"></a>程序设计</h2><h4 id="开启条件（conditions）和行为（actions）"><a href="#开启条件（conditions）和行为（actions）" class="headerlink" title="开启条件（conditions）和行为（actions）"></a>开启条件（conditions）和行为（actions）</h4><p>典型的工厂模式，将各种自定义的条件和行为加入到两个工厂类里，运行时生成相应实例。</p>
+<p><img src="1553066474463.png" alt="1553066474463"></p>
+<p><img src="1553066458400.png" alt="1553066458400"></p>
+<h4 id="引导类设计"><a href="#引导类设计" class="headerlink" title="引导类设计"></a>引导类设计</h4><p><img src="1553066945267.png" alt="1553066945267"></p>
+<p>其中每个引导可能包含多个condition和多个action，对于多个conditions时，需要都满足（IsSatisfied()都返回true）；而对于多个actions，则会依次触发（StartTrigger()依次执行）。</p>
+<h4 id="程序流程"><a href="#程序流程" class="headerlink" title="程序流程"></a>程序流程</h4><p>对于最基本的引导系统，其实整个程序流程还是很清晰的：</p>
+<p>最开始的阶段，第一个引导通过初始化得到，初始化的方式可以是服务器下发，也可以是程序预先设定好。</p>
+<p>之后就是所有的引导依次进行：conditions不满足就等待，条件满足的时候，执行所有的actions，然后转向下一个引导，默认是之前的引导ID+1，当然也支持配置。如图所示：</p>
+<p><img src="1553072165895.png" alt="1553072165895"></p>
+<p>其中有一个地方需要解释：在“满足等待”环节，并不是简单粗暴的每帧去检测条件是否满足（当然也不是不行），而是在每个特定的condition中去监听关键事件，在时间到达时才去重新做判断，其余时间闲置等待即可。</p>
+<p>eg：对于人物等级条件，比如需要达到5级。如果当前没有达到5级，整个引导处于“等待满足”状态，同时此condition会监听人物等级变化事件，在事件到达的时候，再次检测所有条件是否满足。</p>
+<h2 id="其余的一些考虑"><a href="#其余的一些考虑" class="headerlink" title="其余的一些考虑"></a>其余的一些考虑</h2><h4 id="尽量使用事件机制"><a href="#尽量使用事件机制" class="headerlink" title="尽量使用事件机制"></a>尽量使用事件机制</h4><p>在action和condition中，无论是数据层还是表现层，往往会涉及到别的系统逻辑。</p>
+<p>如果想要达到“无副作用”的目的，引导系统是尽量不要去去修改原有逻辑的，它所关心的数据、所引发的表现，都应该是由事件监听和触发的。</p>
+<h4 id="引导步骤网络同步"><a href="#引导步骤网络同步" class="headerlink" title="引导步骤网络同步"></a>引导步骤网络同步</h4><p>考虑到在引导过程中存在玩家掉线、重连的可能，在关键步骤上是需要向服务器上传已完成的引导ID，等待网络恢复时候，服务器会同步当前的引导，重新初始化即可。</p>
+<p>并不需要每一步都同步，几个引导分为一段记录保存即可，恢复时回到最近的引导步骤即可。</p>
+<h4 id="策划配表相关"><a href="#策划配表相关" class="headerlink" title="策划配表相关"></a>策划配表相关</h4><p>表格的基本设计如下：</p>
+<p><img src="1553138200137.png" alt="1553138200137"></p>
+<p>需要注意的是，触发条件和引导行为是需要带上特定参数的（比如人物等级条件就需要填写等级参数），参数列表需要自行设计。不同游戏的表格设计不同，这一部分是开放给策划配置的，所以可以设计得更加易用一些。</p>
+<h2 id="总结和展望"><a href="#总结和展望" class="headerlink" title="总结和展望"></a>总结和展望</h2><p>这样的系统对于简单的新手引导系统已经完全足够，而且如果想要增加更加复杂的步骤，也是完全可行的，同时也符合最开始“灵活、无副作用”的设计预期。</p>
+<p>但同时实际使用过程中发现，目前的难点就是由于所有引导的步骤分的太细，如果引导步骤过多，填表过程太过痛苦，同时表格的参数设计也会随着condition和action的增多而增多，也给表格配置增加了难度；可是另一方面，想要实现最大的灵活程度，也确实需要把步骤分得足够详细，两者的平衡需要好好取舍。或许以后能够想到更好的机制来避免这些问题。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/程序设计/" rel="tag"># 程序设计</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/21/2019自我批评/" rel="next" title="2019自我批评">
+                <i class="fa fa-chevron-left"></i> 2019自我批评
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/23/Lua实现Class遇到的一个坑/" rel="prev" title="Lua实现Class遇到的一个坑">
+                Lua实现Class遇到的一个坑 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="Kelvnzhang 张凯">
+            
+              <p class="site-author-name" itemprop="name">Kelvnzhang 张凯</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#新手引导的一些设计总结–程序角度"><span class="nav-number">1.</span> <span class="nav-text">新手引导的一些设计总结–程序角度</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设计思想"><span class="nav-number">1.2.</span> <span class="nav-text">设计思想</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#开启条件（conditions）"><span class="nav-number">1.2.0.0.1.</span> <span class="nav-text">开启条件（conditions）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#行为（actions）"><span class="nav-number">1.2.0.0.2.</span> <span class="nav-text">行为（actions）</span></a></li></ol></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#程序设计"><span class="nav-number">1.3.</span> <span class="nav-text">程序设计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#开启条件（conditions）和行为（actions）"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">开启条件（conditions）和行为（actions）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#引导类设计"><span class="nav-number">1.3.0.2.</span> <span class="nav-text">引导类设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#程序流程"><span class="nav-number">1.3.0.3.</span> <span class="nav-text">程序流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其余的一些考虑"><span class="nav-number">1.4.</span> <span class="nav-text">其余的一些考虑</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#尽量使用事件机制"><span class="nav-number">1.4.0.1.</span> <span class="nav-text">尽量使用事件机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#引导步骤网络同步"><span class="nav-number">1.4.0.2.</span> <span class="nav-text">引导步骤网络同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#策划配表相关"><span class="nav-number">1.4.0.3.</span> <span class="nav-text">策划配表相关</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结和展望"><span class="nav-number">1.5.</span> <span class="nav-text">总结和展望</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kelvnzhang 张凯</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/schemes/muse.js?v=7.1.2"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,3 +1,9 @@
+---
+title: Lua中的string连接
+date: 2019-12-23 22:09:02
+tags: [Lua]
+categories: 技术文章
+---
 # Lua性能优化
 
 ### 1 Local总是比global快

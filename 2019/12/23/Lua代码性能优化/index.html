@@ -104,7 +104,7 @@
 <meta property="og:site_name" content="Kelvin&#39;s Blog">
 <meta property="og:description" content="Lua性能优化1 Local总是比global快Local变量更快，因为机制上决定了它们是通过index来索引的，而Global变量由于存在table里的原因，使用之前要进行一次hash查找。 2 尽量减少可GC对象的生成会产生GC对象的操作： 1 循环中使用..连接字符串 2 新建一个table  3 函数闭包 3 table预分配local t = {}; for i=1,N do t[i]">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-23T04:58:52.083Z">
+<meta property="og:updated_time" content="2019-12-23T04:58:52.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Lua代码性能优化">
 <meta name="twitter:description" content="Lua性能优化1 Local总是比global快Local变量更快，因为机制上决定了它们是通过index来索引的，而Global变量由于存在table里的原因，使用之前要进行一次hash查找。 2 尽量减少可GC对象的生成会产生GC对象的操作： 1 循环中使用..连接字符串 2 新建一个table  3 函数闭包 3 table预分配local t = {}; for i=1,N do t[i]">
@@ -484,8 +484,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/12/23/Lua中string连接/" rel="next" title="Lua中的string连接">
-                <i class="fa fa-chevron-left"></i> Lua中的string连接
+              <a href="/2019/10/23/Lua实现Class遇到的一个坑/" rel="next" title="Lua实现Class遇到的一个坑">
+                <i class="fa fa-chevron-left"></i> Lua实现Class遇到的一个坑
               </a>
             
           </div>
@@ -493,6 +493,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/Lua中string连接/" rel="prev" title="Lua中的string连接">
+                Lua中的string连接 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -664,7 +668,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
